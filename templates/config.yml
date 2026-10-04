@@ -1,0 +1,57 @@
+# Filled by configure.py; persisted mode 0600 and delivered as a systemd credential.
+version: 0.1
+log:
+  level: info
+  formatter: json
+  accesslog:
+    disabled: true
+storage:
+  s3:
+    accesskey: REPLACE
+    secretkey: REPLACE
+    region: auto
+    regionendpoint: REPLACE
+    forcepathstyle: true
+    secure: true
+    v4auth: true
+    bucket: REPLACE
+    encrypt: false
+    rootdirectory: /registry
+    chunksize: 8388608
+    multipartcopychunksize: 33554432
+    multipartcopymaxconcurrency: 4
+    multipartcopythresholdsize: 33554432
+  redirect:
+    # Keep R2 implementation and presigned secrets out of clients and logs.
+    disable: true
+  delete:
+    enabled: false
+  maintenance:
+    uploadpurging:
+      enabled: true
+      age: 24h
+      interval: 1h
+      dryrun: false
+http:
+  addr: :443
+  host: REPLACE
+  secret: REPLACE
+  draintimeout: 60s
+  tls:
+    certificate: /run/credentials/apollo-registry.service/tls.crt
+    key: /run/credentials/apollo-registry.service/tls.key
+    minimumtls: tls1.2
+  debug:
+    addr: 127.0.0.1:5001
+  headers:
+    X-Content-Type-Options: [nosniff]
+    Strict-Transport-Security: [max-age=31536000]
+auth:
+  htpasswd:
+    realm: OCI registry
+    path: /run/credentials/apollo-registry.service/htpasswd
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3

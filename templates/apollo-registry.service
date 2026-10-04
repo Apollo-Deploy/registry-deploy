@@ -1,0 +1,53 @@
+# Direct HTTPS needs only CAP_NET_BIND_SERVICE; secrets arrive via systemd credentials.
+[Unit]
+Description=Standalone CNCF Distribution registry
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=apollo-registry
+Group=apollo-registry
+LoadCredential=config.yml:/etc/apollo-registry/config.yml
+LoadCredential=htpasswd:/etc/apollo-registry/htpasswd
+LoadCredential=tls.crt:/etc/apollo-registry/tls.crt
+LoadCredential=tls.key:/etc/apollo-registry/tls.key
+LoadCredential=client.json:/etc/apollo-registry/client.json
+WorkingDirectory=/opt/apollo-registry/deploy
+ExecStart=/usr/bin/python3 -m lib.runtime.supervise
+Environment=OTEL_TRACES_EXPORTER=none
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=90
+KillSignal=SIGTERM
+KillMode=mixed
+RuntimeDirectory=apollo-registry
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictRealtime=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+ReadWritePaths=/run/apollo-registry
+TasksMax=256
+LimitNOFILE=65536
+# Bound this unit's logs without changing host-wide journal policy.
+LogNamespace=apollo-registry
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

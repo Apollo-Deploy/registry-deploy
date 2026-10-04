@@ -1,0 +1,24 @@
+# R2 session cleanup runs only on the registry host, with its bucket-scoped credentials.
+[Unit]
+Description=Abort aged incomplete registry multipart uploads
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/apollo-registry/deploy
+ExecStart=/usr/bin/python3 -m lib.runtime.upload_cleanup
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LogNamespace=apollo-registry
+TimeoutStartSec=300
